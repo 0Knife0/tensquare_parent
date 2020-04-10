@@ -15,5 +15,5 @@ public class Comment implements Serializable {
     private String userid;      // 评论人id
     private String parentid;    // 评论评论的id
     private Date publishdate;   // 评论发布时间
-    private Integer thembup;    // 点赞数
+    private Integer thumbup;    // 点赞数
 }

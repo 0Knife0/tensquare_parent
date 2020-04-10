@@ -27,6 +27,12 @@ spring:
     maxWait: 60000
     # 配置多久进行一次检测，检测需要关闭的空闲连接 单位毫秒
     timeBetweenEvictionRunsMillis: 60000
+  data:
+    mongodb:
+      host: 192.168.0.222
+      database: commentdb
+  redis:
+    host: 192.168.0.222
 
 
 # Mybatis-Plus 配置
