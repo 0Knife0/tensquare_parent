@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="mongo_demo" />
+        <module name="tensquare_user" />
         <module name="tensquare_common" />
         <module name="tensquare_article" />
       </profile>
@@ -19,6 +20,7 @@
       <module name="tensquare_article" options="-parameters" />
       <module name="tensquare_common" options="-parameters" />
       <module name="tensquare_parent" options="-parameters" />
+      <module name="tensquare_user" options="-parameters" />
     </option>
   </component>
 </project>
