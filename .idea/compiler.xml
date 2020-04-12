@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="tensquare_article" />
         <module name="tensquare_user" />
+        <module name="tensquare_eureka" />
         <module name="tensquare_common" />
         <module name="mongo_demo" />
       </profile>
@@ -19,6 +20,7 @@
       <module name="mongo_demo" options="-parameters" />
       <module name="tensquare_article" options="-parameters" />
       <module name="tensquare_common" options="-parameters" />
+      <module name="tensquare_eureka" options="-parameters" />
       <module name="tensquare_parent" options="-parameters" />
       <module name="tensquare_user" options="-parameters" />
     </option>
