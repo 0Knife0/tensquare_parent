@@ -14,6 +14,7 @@
         <module>mongo_demo</module>
         <module>tensquare_user</module>
         <module>tensquare_eureka</module>
+        <module>tensquare_encrypt</module>
     </modules>
 
     <parent>
