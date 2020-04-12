@@ -96,8 +96,8 @@ public class RSARequestFilter extends ZuulFilter {
                     }
                 });
             }
-            // 设置请求头中的context-Type，为json格式数据
-            ctx.addZuulRequestHeader("context-Type",
+            // 设置请求头中的Context-Type，为json格式数据
+            ctx.addZuulRequestHeader("Context-Type",
                     MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
 
         } catch (Exception e) {
