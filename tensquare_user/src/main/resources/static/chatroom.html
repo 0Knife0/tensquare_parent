@@ -165,7 +165,7 @@
 
     /*
         * Message
-        */
+    */
     //文本消息
     var conf = WebIM.config
     //var WebIM = WebIM.default
@@ -175,6 +175,7 @@
     WebIM.debug = WebIM.default.debug
     WebIM.statusCode = WebIM.default.statusCode
 
+    // 发送消息
     var myDate = new Date().toLocaleString();
     document.getElementById('send').onclick = function () {
         var tname = document.getElementById("toUserId").value;
