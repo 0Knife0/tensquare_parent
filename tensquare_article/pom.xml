@@ -55,15 +55,6 @@
         </dependency>
         <!-- druid end -->
 
-        <!-- Lombok begin -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Lombok end -->
-
         <!-- Eureka begin -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
