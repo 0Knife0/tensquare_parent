@@ -1,7 +1,6 @@
 package com.tensquare.notice.client;
 
 import com.tensquare.entity.Result;
-import com.tensquare.entity.StatusCode;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
