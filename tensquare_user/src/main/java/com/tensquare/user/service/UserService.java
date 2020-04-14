@@ -15,4 +15,8 @@ public class UserService {
     public User selectById(String userId) {
         return userDao.selectById(userId);
     }
+
+    public User login(User user) {
+        return userDao.selectOne(user);
+    }
 }

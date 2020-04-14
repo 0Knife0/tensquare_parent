@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/article")
+@RequestMapping("article")
 @CrossOrigin
 public class ArticleController {
 
