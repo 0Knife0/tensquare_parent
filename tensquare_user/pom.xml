@@ -43,14 +43,10 @@
         </dependency>
         <!-- druid end -->
 
-        <!-- Lombok begin -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
-            <scope>provided</scope>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-        <!-- Lombok end -->
     </dependencies>
 
 </project>
