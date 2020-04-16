@@ -7,6 +7,7 @@ import com.tensquare.entity.PageResult;
 import com.tensquare.entity.Result;
 import com.tensquare.entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,34 @@ public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    // 文章点赞
+    // http://127.0.0.1:9004/article/thumbup/{articleId} PUT
+    @PutMapping("/thumbup/{articleId}")
+    public Result thumbup(@PathVariable String articleId) {
+        //TODO 使用JWT鉴权的方式获取当前用户的id
+        String userId = "4";
+
+        // 根据用户的id和文章id查询用户对此文章的点赞信息
+        String key = "thumbup_article_" + userId + "_" + articleId;
+        Object flag = redisTemplate.opsForValue().get(key);
+
+        //判断查询到的结果如果为空
+        if (flag == null) {
+            // 如果为空证明没有点赞过，可以进行点赞操作
+            articleService.thumbup(articleId, userId);
+            // 点赞成功，保存点赞信息
+            redisTemplate.opsForValue().set(key, 1);
+
+            return new Result(true, StatusCode.OK, "点赞成功");
+        } else {
+            // 不为空，表示已经点过赞了，不可以重复点赞
+            return new Result(false, StatusCode.REPERROR, "不能重复点赞");
+        }
+    }
 
     // 订阅或取消订阅文章作者
     // http://127.0.0.1:9004/article/subscribe POST
