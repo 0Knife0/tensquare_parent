@@ -2,13 +2,16 @@ package com.tensquare.article.service;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
+import com.tensquare.article.client.NoticeClient;
 import com.tensquare.article.dao.ArticleDao;
 import com.tensquare.article.pojo.Article;
+import com.tensquare.article.pojo.Notice;
 import com.tensquare.util.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +28,9 @@ public class ArticleService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private NoticeClient noticeClient;
+
     public List<Article> findAll() {
         return articleDao.selectList(null);
     }
@@ -34,6 +40,10 @@ public class ArticleService {
     }
 
     public void save(Article article) {
+        // TODO: 使用jwt鉴权获取当前用户的信息，用户id，也就是文章作者id
+        String authorId = "3";
+        article.setUserid(authorId);
+
         //使用分布式id生成器
         String id = idWorker.nextId() + "";
         article.setId(id);
@@ -45,6 +55,35 @@ public class ArticleService {
 
         //新增
         articleDao.insert(article);
+
+        // 新增文章后，创建消息，通知给订阅者
+
+        // 获取订阅者信息
+        String authorKey = "article_author_" + authorId;
+        Set<String> set = redisTemplate.boundSetOps(authorKey).members();
+
+        if (null != set && set.size() > 0){
+            // 给订阅者创建一个消息通知
+            Notice notice = null;
+            for (String uid : set) {
+                // 创建消息对象
+                notice = new Notice();
+                // 接收消息的用户id
+                notice.setReceiverId(uid);
+                // 文章作者id
+                notice.setOperatorId(authorId);
+                // 操作消息类型（评论、点赞）等
+                notice.setAction("publish");
+                // 操作的对象（文章、评论）等
+                notice.setTargetType("article");
+                // 操作对象的id
+                notice.setTargetId(id);
+                // 通知类型
+                notice.setType("sys");
+
+                noticeClient.save(notice);
+            }
+        }
     }
 
     public void updateById(Article article) {
@@ -90,9 +129,9 @@ public class ArticleService {
 
         // 存放用户订阅信息集合的key，里面存放作者id
         String authorKey = "article_author_" + authorId;
+        // 存放作者订阅者信息集合的key，里面存放用户id
         String userKey = "article_subscribe_" + userId;
 
-        // 存放作者订阅者信息集合的key，里面存放用户id
         Boolean flag = redisTemplate.boundSetOps(userKey).isMember(authorId);
 
         // 查询该用户的订阅关系，是否有订阅该作者
