@@ -6,6 +6,7 @@ import com.tensquare.article.dao.ArticleDao;
 import com.tensquare.article.pojo.Article;
 import com.tensquare.util.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,9 @@ public class ArticleService {
 
     @Autowired
     private IdWorker idWorker;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     public List<Article> findAll() {
         return articleDao.selectList(null);
@@ -78,5 +82,34 @@ public class ArticleService {
         pageData.setRecords(list);
         // 返回
         return pageData;
+    }
+
+    public Boolean subscribe(String articleId, String userId) {
+        //根据文章id查询文章作者id
+        String authorId = articleDao.selectById(articleId).getUserid();
+
+        // 存放用户订阅信息集合的key，里面存放作者id
+        String authorKey = "article_author_" + authorId;
+        String userKey = "article_subscribe_" + userId;
+
+        // 存放作者订阅者信息集合的key，里面存放用户id
+        Boolean flag = redisTemplate.boundSetOps(userKey).isMember(authorId);
+
+        // 查询该用户的订阅关系，是否有订阅该作者
+        if (flag) {
+            // 如果有订阅就取消订阅
+            // 从用户订阅信息集合中，删除作者id
+            redisTemplate.boundSetOps(userKey).remove(authorId);
+            // 从作者订阅者信息集合中，删除用户id
+            redisTemplate.boundSetOps(authorKey).remove(userId);
+            return false;
+        } else {
+            // 如果没有订阅就订阅
+            // 从用户订阅信息集合中，增加作者id
+            redisTemplate.boundSetOps(userKey).add(authorId);
+            // 从作者订阅者信息集合中，增加用户id
+            redisTemplate.boundSetOps(authorKey).add(userId);
+            return true;
+        }
     }
 }

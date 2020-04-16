@@ -20,6 +20,20 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
+    // 订阅或取消订阅文章作者
+    // http://127.0.0.1:9004/article/subscribe POST
+    @PostMapping("/subscribe")
+    public Result subscribe(@RequestBody Map map) {
+        //根据文章id，订阅文章作者，返回订阅状态，true表示订阅成功，false表示取消订阅成功
+        Boolean flag = articleService.subscribe(map.get("articleId").toString()
+                , map.get("userId").toString());
+        if (flag) {
+            return new Result(true, StatusCode.OK, "订阅成功");
+        } else {
+            return new Result(true, StatusCode.OK, "取消订阅成功");
+        }
+    }
+
     // GET /article 文章全部列表
     //@RequestMapping(method = RequestMethod.GET)
     @GetMapping
