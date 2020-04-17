@@ -93,6 +93,9 @@ public class ArticleService {
                 noticeClient.save(notice);
             }
         }
+
+        // 入库成功后，发送mq消息，内容是消息通知id
+        rabbitTemplate.convertAndSend("article_subscribe", authorId, id);
     }
 
     public void updateById(Article article) {
