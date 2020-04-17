@@ -7,6 +7,12 @@ import com.tensquare.article.dao.ArticleDao;
 import com.tensquare.article.pojo.Article;
 import com.tensquare.article.pojo.Notice;
 import com.tensquare.util.IdWorker;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +36,9 @@ public class ArticleService {
 
     @Autowired
     private NoticeClient noticeClient;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     public List<Article> findAll() {
         return articleDao.selectList(null);
@@ -127,6 +136,21 @@ public class ArticleService {
         //根据文章id查询文章作者id
         String authorId = articleDao.selectById(articleId).getUserid();
 
+        // 1.创建Rabbitmq管理器
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(rabbitTemplate.getConnectionFactory());
+
+        // 2.声明Direct类型交换机，处理新增文章信息
+        DirectExchange exchange = new DirectExchange("article_subscribe");
+        rabbitAdmin.declareExchange(exchange);
+
+        // 3.创建队列，每个用户都有自己的队列，通过用户id进行区分
+        Queue queue = new Queue("article_subscribe_" + userId, true);
+
+        // 4.声明交换机和队列的绑定关系，需要保证队列只收到对应作者的新增文章消息
+        // 通过路由键绑定作者，队列只收到绑定作者的文章消息。
+        // 第一个是队列，第二个是交换机，第三个是路由键
+        Binding binding = BindingBuilder.bind(queue).to(exchange).with(authorId);
+
         // 存放用户订阅信息集合的key，里面存放作者id
         String authorKey = "article_author_" + authorId;
         // 存放作者订阅者信息集合的key，里面存放用户id
@@ -141,6 +165,10 @@ public class ArticleService {
             redisTemplate.boundSetOps(userKey).remove(authorId);
             // 从作者订阅者信息集合中，删除用户id
             redisTemplate.boundSetOps(authorKey).remove(userId);
+
+            // 如果取消订阅，删除队列的绑定关系
+            rabbitAdmin.removeBinding(binding);
+
             return false;
         } else {
             // 如果没有订阅就订阅
@@ -148,6 +176,12 @@ public class ArticleService {
             redisTemplate.boundSetOps(userKey).add(authorId);
             // 从作者订阅者信息集合中，增加用户id
             redisTemplate.boundSetOps(authorKey).add(userId);
+
+            // 如果订阅，声明要绑定的队列
+            rabbitAdmin.declareQueue(queue);
+            // 添加绑定关系
+            rabbitAdmin.declareBinding(binding);
+
             return true;
         }
     }
