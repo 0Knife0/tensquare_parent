@@ -29,6 +29,8 @@ spring:
     timeBetweenEvictionRunsMillis: 60000
   redis:
     host: 192.168.0.222
+  rabbitmq:
+    host: 192.168.0.222
 
 
 # Mybatis-Plus 配置
